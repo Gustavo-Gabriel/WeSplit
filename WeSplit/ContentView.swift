@@ -2,8 +2,13 @@ import SwiftUI
 
 struct ContentView: View {
     
-    var totalPerPerson: Double {
-        let peopleCount = Double(numberOfPeople + 2)
+    var totalPerPerson: Double? {
+        
+        if numberOfPeople.isEmpty {
+            return 0
+        }
+        
+        let peopleCount = Double(numberOfPeople) ?? 0
         let tipSelection = Double(tipPercentages[tipPercentage])
         let orderAmount = Double(checkAmount) ?? 0
         
@@ -11,11 +16,22 @@ struct ContentView: View {
         let grandTotal = orderAmount + tipValue
         let amountPerPerson = grandTotal/peopleCount
         
+        
         return amountPerPerson
     }
     
+    var totalAmount: Double {
+        let tipSelection = Double(tipPercentages[tipPercentage])
+        let orderAmount = Double(checkAmount) ?? 0
+        
+        let tipValue = orderAmount/100 * tipSelection
+        let grandTotal = orderAmount + tipValue
+        
+        return grandTotal
+    }
+    
     @State private var checkAmount = ""
-    @State private var numberOfPeople = 2
+    @State private var numberOfPeople = ""
     @State private var tipPercentage = 2
     
     let tipPercentages = [0, 10, 15, 20, 25]
@@ -39,17 +55,17 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    Picker("Number of People", selection: $numberOfPeople) {
-                        ForEach(2..<100) {
-                            Text("\($0) people")
-                        }
-                    }
+                    TextField("Number Of People", text: $numberOfPeople)
+                        .keyboardType(.numberPad)
+                }
+
+                Section(header: Text("Amount per person")) {
+                    Text("$ \(totalPerPerson ?? 0, specifier: "%.2f")")
                 }
                 
-                Section {
-                    Text("$ \(totalPerPerson, specifier: "%.2f")")
+                Section(header: Text("Amount Total")) {
+                    Text("$ \(totalAmount, specifier: "%.2f")")
                 }
-                
             }
             
             .navigationBarTitle("WeSplit")
